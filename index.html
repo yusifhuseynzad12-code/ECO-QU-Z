@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eco-Quiz | Eco Start-Up Club</title>
+    <style>
+        :root {
+            --primary-dark: #113224;
+            --primary-green: #1e4d3b;
+            --accent-yellow: #f4c430;
+            --card-bg: rgba(255, 255, 255, 0.96);
+            --text-color: #2c3e50;
+            --correct-color: #27ae60;
+            --wrong-color: #c0392b;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #113224, #1e4d3b);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        header {
+            width: 100%;
+            padding: 15px 25px;
+            background: rgba(17, 50, 36, 0.9);
+            border-bottom: 2px solid var(--accent-yellow);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            z-index: 20;
+            letter-spacing: 0.5px;
+        }
+
+        header span {
+            color: var(--accent-yellow);
+            margin-left: 8px;
+        }
+
+        footer {
+            width: 100%;
+            padding: 12px 20px;
+            background: rgba(17, 50, 36, 0.9);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+            font-size: 14px;
+            color: #ddd;
+            z-index: 20;
+        }
+
+        .container {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 500px;
+            padding: 30px;
+            text-align: center;
+            z-index: 10;
+            animation: fadeIn 0.6s ease-in-out;
+            margin: 20px 0;
+            border-top: 5px solid var(--accent-yellow);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .club-logo {
+            width: 90px;
+            height: 90px;
+            object-fit: cover;
+            border-radius: 50%;
+            margin-bottom: 12px;
+            border: 3px solid var(--accent-yellow);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        }
+
+        h2, h3 {
+            color: var(--primary-dark);
+            margin-bottom: 15px;
+        }
+
+        p {
+            color: #555;
+            font-size: 15px;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        .screen {
+            display: none;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 14px;
+            margin: 10px 0 15px 0;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--primary-green);
+            box-shadow: 0 0 8px rgba(30, 77, 59, 0.2);
+        }
+
+        button {
+            background: var(--primary-green);
+            color: white;
+            border: none;
+            padding: 14px 24px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.2s, background 0.2s;
+            width: 100%;
+            margin-top: 10px;
+            box-shadow: 0 4px 12px rgba(30, 77, 59, 0.3);
+        }
+
+        button:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .secondary-btn {
+            background: transparent;
+            color: var(--primary-dark);
+            border: 2px solid var(--primary-dark);
+            box-shadow: none;
+        }
+
+        .secondary-btn:hover {
+            background: var(--primary-dark);
+            color: white;
+        }
+
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: bold;
+            color: #666;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+
+        /* 20 Saniyəlik Taymer Barı */
+        .timer-box {
+            background: #eee;
+            border-radius: 10px;
+            height: 10px;
+            width: 100%;
+            margin-bottom: 15px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .timer-bar {
+            height: 100%;
+            width: 100%;
+            background: var(--correct-color);
+            transition: width 1s linear, background-color 0.3s;
+        }
+
+        .timer-text {
+            font-size: 14px;
+            font-weight: bold;
+            color: var(--primary-dark);
+            margin-bottom: 5px;
+        }
+
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 15px;
+        }
+
+        .option-btn {
+            background: #f8f9fa;
+            color: var(--text-color);
+            border: 2px solid #e9ecef;
+            text-align: left;
+            padding: 14px 16px;
+            border-radius: 10px;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: none;
+            width: 100%;
+        }
+
+        .option-btn:hover {
+            background: #e8f5e9;
+            border-color: var(--primary-green);
+            transform: translateX(4px);
+        }
+
+        .option-btn.correct {
+            background-color: var(--correct-color) !important;
+            color: white;
+            border-color: var(--correct-color);
+        }
+
+        .option-btn.wrong {
+            background-color: var(--wrong-color) !important;
+            color: white;
+            border-color: var(--wrong-color);
+        }
+
+        .score-card {
+            background: #e8f5e9;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 15px 0;
+            border: 1px solid #c8e6c9;
+        }
+
+        .result-status {
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 10px;
+            color: #2e7d32;
+        }
+
+        /* Liderlər Cədvəli Stili */
+        .leaderboard-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+
+        .leaderboard-table th, .leaderboard-table td {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+        }
+
+        .leaderboard-table th {
+            background-color: var(--primary-green);
+            color: white;
+        }
+
+        .leaderboard-table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    ECO START-UP CLUB <span>| Quiz</span>
+</header>
+
+<div class="container">
+    <img src="logo.png" onerror="this.src='https://via.placeholder.com/90?text=Eco+Club'" alt="Eco Start-Up Club Logo" class="club-logo">
+
+    <!-- 1. Giriş Ekranı -->
+    <div id="welcome-screen" class="screen active">
+        <h2>Eko-Bilik Sınağı</h2>
+        <p>Hər sual üçün 20 saniyə vaxt verilir! Təsadüfi 20 sualla özünüzü sınayın.</p>
+        <input type="text" id="username-input" placeholder="Ad və Soyadınızı daxil edin...">
+        <button type="button" onclick="startGame()">Oyuna Başla</button>
+        <button type="button" class="secondary-btn" onclick="showLeaderboard()">🏆 Liderlər Sıralaması</button>
+    </div>
+
+    <!-- 2. Sual Ekranı -->
+    <div id="quiz-screen" class="screen">
+        <div class="quiz-header">
+            <span id="question-count">Sual 1/20</span>
+            <span id="timer-text" class="timer-text">⏱️ 20 san</span>
+        </div>
+        <div class="timer-box">
+            <div id="timer-bar" class="timer-bar"></div>
+        </div>
+        <h3 id="question-text">Suallar yüklənir...</h3>
+        <div class="options-container" id="options-container"></div>
+    </div>
+
+    <!-- 3. Nəticə Ekranı -->
+    <div id="result-screen" class="screen">
+        <h2>Oyun Bitdi!</h2>
+        <p><span id="user-display"></span>, təşəkkürlər!</p>
+        <div class="score-card">
+            <h1 id="score-text">0 / 20</h1>
+            <div id="status-text" class="result-status"></div>
+        </div>
+        <button type="button" onclick="restartGame()">Yenidən Başla</button>
+        <button type="button" class="secondary-btn" onclick="showLeaderboard()">🏆 Liderlər Sıralaması</button>
+    </div>
+
+    <!-- 4. Liderlər Cədvəli Ekranı -->
+    <div id="leaderboard-screen" class="screen">
+        <h2>🏆 Liderlər Sıralaması</h2>
+        <table class="leaderboard-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Ad Soyad</th>
+                    <th>Xal</th>
+                </tr>
+            </thead>
+            <tbody id="leaderboard-body">
+                <!-- Data avtomatik doldurulacaq -->
+            </tbody>
+        </table>
+        <button type="button" onclick="backToWelcome()">Ana Ekranı Aç</button>
+    </div>
+</div>
+
+<footer>
+    &copy; 2026 Eco Start-Up Club | Bütün hüquqlar qorunur. 🌍
+</footer>
+
+<script>
+    const questionsDatabase = [
+        { question: "Ekologiya nəyi öyrənir?", options: ["Yalnız heyvanları", "Canlı orqanizmlərlə ətraf mühit arasındakı əlaqələri", "Yalnız bitkiləri", "Yerin quruluşunu"], answer: 1 },
+        { question: "Fotosintez prosesi əsasən hansı orqanizmlərdə baş verir?", options: ["Heyvanlarda", "Göbələklərdə", "Yaşıl bitkilərdə", "Bakteriyalarda"], answer: 2 },
+        { question: "Atmosferdə ən çox olan qaz hansıdır?", options: ["Oksigen", "Azot", "Karbon qazı", "Hidrogen"], answer: 1 },
+        { question: "Bitkilər fotosintez zamanı hansı qazı udur?", options: ["Oksigen", "Azot", "Karbon qazı", "Hidrogen"], answer: 2 },
+        { question: "Su dövranının əsas enerji mənbəyi nədir?", options: ["Ay", "Günəş", "Külək", "Torpaq"], answer: 1 },
+        { question: "Canlı orqanizmlərin yaşadığı yer necə adlanır?", options: ["Habitat", "Atmosfer", "Litosfer", "Hidrosfer"], answer: 0 },
+        { question: "Yer kürəsinin su örtüyü necə adlanır?", options: ["Biosfer", "Atmosfer", "Hidrosfer", "Litosfer"], answer: 2 },
+        { question: "Meşələrin qırılması hansı problemə səbəb olur?", options: ["Biomüxtəlifliyin artmasına", "Torpaq eroziyasına", "Havanın təmizlənməsinə", "Yağıntının həmişə artmasına"], answer: 1 },
+        { question: "Hansı enerji mənbəyi bərpaolunandır?", options: ["Neft", "Kömür", "Günəş", "Təbii qaz"], answer: 2 },
+        { question: "Ətraf mühitin çirklənməsinə səbəb olan amil hansıdır?", options: ["Ağacəkmə", "Tullantıların təbiətə atılması", "Təkrar emal", "Qoruqların yaradılması"], answer: 1 },
+        { question: "Hansı canlı istehsalçı hesab olunur?", options: ["Şir", "Dovşan", "Ot", "Canavar"], answer: 2 },
+        { question: "Qida zəncirində istehlakçılar kimlərdir?", options: ["Yalnız bitkilər", "Heyvanlar", "Günəş şüaları", "Mineral maddələr"], answer: 1 },
+        { question: "Ozon təbəqəsinin əsas funksiyası nədir?", options: ["Yağış yaratmaq", "Zərərli ultrabənövşəyi şüaların bir hissəsini udmaq", "Külək yaratmaq", "Torpağı qidalandırmaq"], answer: 1 },
+        { question: "Hansı heyvan ot yeyəndir?", options: ["Canavar", "Şir", "İnək", "Qartal"], answer: 2 },
+        { question: "Bioloji müxtəliflik nədir?", options: ["Yalnız bitkilərin sayı", "Canlıların müxtəlifliyi", "Yalnız heyvanların sayı", "İqlim dəyişməsi"], answer: 1 },
+        { question: "Təbii sərvətlərə hansı aiddir?", options: ["Plastik qab", "Neft", "Şüşə butulka", "Kağız qutu"], answer: 1 },
+        { question: "Torpağın münbitliyini artıran amil hansıdır?", options: ["Humus", "Plastik tullantılar", "Neft sızması", "Kimyəvi çirklənmə"], answer: 0 },
+        { question: "Hansı canlı parçalayıcıdır?", options: ["Göbələk", "Şir", "Maral", "Qartal"], answer: 0 },
+        { question: "İqlim nədir?", options: ["Bir günlük hava vəziyyəti", "Uzun müddət ərzində müşahidə olunan hava şəraitinin xüsusiyyətləri", "Yalnız külək", "Yalnız yağıntı"], answer: 1 },
+        { question: "Hansı tullantı təkrar emal edilə bilər?", options: ["Şüşə", "Bütün radioaktiv maddələr", "Çirklənmiş tibbi tullantılar", "Təhlükəli kimyəvi maddələr"], answer: 0 },
+        { question: "Ekosistem nədir?", options: ["Yalnız heyvanlar", "Canlılar və onların cansız mühitinin qarşılıqlı sistemi", "Yalnız bitkilər", "Yalnız torpaq"], answer: 1 },
+        { question: "Qlobal istiləşmənin əsas səbəblərindən biri hansıdır?", options: ["İstixana qazlarının artması", "Ağacların əkilməsi", "Təkrar emal", "Günəş enerjisindən istifadə"], answer: 0 },
+        { question: "Atmosfer nədir?", options: ["Yerin su qatı", "Yeri əhatə edən qaz təbəqəsi", "Yerin bərk qatı", "Canlılar aləmi"], answer: 1 },
+        { question: "Səhralaşma nədir?", options: ["Meşələrin genişlənməsi", "Torpaqların quraq və məhsuldarlığı azalmış ərazilərə çevrilməsi", "Yağıntının artması", "Buzlaqların böyüməsi"], answer: 1 },
+        { question: "Milli parkların yaradılmasının məqsədi nədir?", options: ["Sənaye müəssisələrini artırmaq", "Təbiəti və biomüxtəlifliyi qorumaq", "Meşələri qırmaq", "Tullantı toplamaq"], answer: 1 }
+    ];
+
+    let activeQuestions = [];
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let username = "";
+    let timerInterval = null;
+    let timeLeft = 20;
+
+    function startGame() {
+        const inputEl = document.getElementById("username-input");
+        const inputVal = inputEl ? inputEl.value.trim() : "";
+        
+        if (!inputVal) {
+            alert("Lütfən ad və soyadınızı daxil edin!");
+            return;
+        }
+        
+        username = inputVal;
+        activeQuestions = [...questionsDatabase].sort(() => Math.random() - 0.5).slice(0, 20);
+        currentQuestionIndex = 0;
+        score = 0;
+
+        switchScreen("quiz-screen");
+        showQuestion();
+    }
+
+    function startTimer() {
+        clearInterval(timerInterval);
+        timeLeft = 20;
+        updateTimerUI();
+
+        timerInterval = setInterval(() => {
+            timeLeft--;
+            updateTimerUI();
+
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                timeOutAction();
+            }
+        }, 1000);
+    }
+
+    function updateTimerUI() {
+        document.getElementById("timer-text").innerText = `⏱️ ${timeLeft} san`;
+        const timerBar = document.getElementById("timer-bar");
+        const percentage = (timeLeft / 20) * 100;
+        timerBar.style.width = `${percentage}%`;
+
+        if (timeLeft <= 5) {
+            timerBar.style.backgroundColor = "var(--wrong-color)";
+        } else {
+            timerBar.style.backgroundColor = "var(--correct-color)";
+        }
+    }
+
+    function timeOutAction() {
+        const currentQ = activeQuestions[currentQuestionIndex];
+        const buttons = document.querySelectorAll(".option-btn");
+        buttons.forEach(btn => btn.disabled = true);
+
+        if (buttons[currentQ.answer]) {
+            buttons[currentQ.answer].classList.add("correct");
+        }
+
+        setTimeout(() => {
+            nextQuestion();
+        }, 1200);
+    }
+
+    function showQuestion() {
+        const currentQ = activeQuestions[currentQuestionIndex];
+        if (!currentQ) return;
+
+        document.getElementById("question-count").innerText = `Sual ${currentQuestionIndex + 1} / ${activeQuestions.length}`;
+        document.getElementById("question-text").innerText = `${currentQuestionIndex + 1}. ${currentQ.question}`;
+
+        const optionsContainer = document.getElementById("options-container");
+        optionsContainer.innerHTML = "";
+
+        currentQ.options.forEach((optText, idx) => {
+            const btn = document.createElement("button");
+            btn.className = "option-btn";
+            btn.type = "button";
+            btn.innerText = `${String.fromCharCode(65 + idx)}) ${optText}`;
+            btn.onclick = () => selectOption(btn, idx);
+            optionsContainer.appendChild(btn);
+        });
+
+        startTimer();
+    }
+
+    function selectOption(selectedBtn, selectedIndex) {
+        clearInterval(timerInterval);
+        const currentQ = activeQuestions[currentQuestionIndex];
+        const buttons = document.querySelectorAll(".option-btn");
+
+        buttons.forEach(btn => btn.disabled = true);
+
+        if (selectedIndex === currentQ.answer) {
+            selectedBtn.classList.add("correct");
+            score++;
+        } else {
+            selectedBtn.classList.add("wrong");
+            if (buttons[currentQ.answer]) {
+                buttons[currentQ.answer].classList.add("correct");
+            }
+        }
+
+        setTimeout(() => {
+            nextQuestion();
+        }, 1000);
+    }
+
+    function nextQuestion() {
+        currentQuestionIndex++;
+        if (currentQuestionIndex < activeQuestions.length) {
+            showQuestion();
+        } else {
+            showResults();
+        }
+    }
+
+    function showResults() {
+        clearInterval(timerInterval);
+        switchScreen("result-screen");
+
+        document.getElementById("user-display").innerText = username;
+        document.getElementById("score-text").innerText = `${score} / ${activeQuestions.length}`;
+
+        const statusText = document.getElementById("status-text");
+        const ratio = score / activeQuestions.length;
+
+        if (ratio >= 0.85) {
+            statusText.innerText = "🌿 Möhtəşəm! Siz tam 'Eko-Ekspert'siniz!";
+        } else if (ratio >= 0.5) {
+            statusText.innerText = "🌱 Yaxşı nəticə! Siz 'Eko-Həvəskar'sınız!";
+        } else {
+            statusText.innerText = "🌍 'Eko-Yolun Başlanğıcındasınız', öyrənməyə davam edin!";
+        }
+
+        saveScore(username, score);
+    }
+
+    function saveScore(name, scoreVal) {
+        let scores = JSON.parse(localStorage.getItem("ecoQuizScores")) || [];
+        scores.push({ name: name, score: scoreVal });
+        scores.sort((a, b) => b.score - a.score);
+        scores = scores.slice(0, 10); // İlk 10 nəticəni saxlayır
+        localStorage.setItem("ecoQuizScores", JSON.stringify(scores));
+    }
+
+    function showLeaderboard() {
+        clearInterval(timerInterval);
+        switchScreen("leaderboard-screen");
+        const tbody = document.getElementById("leaderboard-body");
+        tbody.innerHTML = "";
+
+        let scores = JSON.parse(localStorage.getItem("ecoQuizScores")) || [];
+        if (scores.length === 0) {
+            tbody.innerHTML = "<tr><td colspan='3' style='text-align:center;'>Hələ heç bir nəticə yoxdur.</td></tr>";
+            return;
+        }
+
+        scores.forEach((item, index) => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td><b>${index + 1}</b></td>
+                <td>${item.name}</td>
+                <td><b>${item.score} / 20</b></td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    function backToWelcome() {
+        switchScreen("welcome-screen");
+    }
+
+    function restartGame() {
+        activeQuestions = [...questionsDatabase].sort(() => Math.random() - 0.5).slice(0, 20);
+        currentQuestionIndex = 0;
+        score = 0;
+        switchScreen("quiz-screen");
+        showQuestion();
+    }
+
+    function switchScreen(screenId) {
+        document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+        document.getElementById(screenId).classList.add("active");
+    }
+
+    document.getElementById("username-input").addEventListener("keypress", function(e) {
+        if (e.key === "Enter") startGame();
+    });
+</script>
+
+</body>
+</html>
